@@ -62,6 +62,9 @@ typedef enum pa_encoding {
     PA_ENCODING_DTSHD_IEC61937,
     /**< DTS-HD Master Audio encapsulated in IEC 61937 header/padding. \since 13.0 */
 
+    PA_ENCODING_OPUS,
+    /**< Opus encoding (used for network tunnels) */
+
     PA_ENCODING_MAX,
     /**< Valid encoding types must be less than this value */
 
