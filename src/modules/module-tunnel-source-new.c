@@ -69,7 +69,6 @@ struct userdata {
     pa_source *source;
     pa_thread *thread;
     pa_thread_mq *thread_mq;
-    pa_mainloop *thread_mainloop;
     pa_mainloop_api *thread_mainloop_api;
 
     pa_context *context;
@@ -224,16 +223,17 @@ static void thread_func(void *userdata) {
 
     for (;;) {
         int ret;
-
-        if (pa_mainloop_iterate(u->thread_mainloop, 1, &ret) < 0) {
-            if (ret == 0)
-                goto finish;
-            else
-                goto fail;
-        }
-
+        
         if (u->new_data)
             read_new_samples(u);
+
+        if ((ret = pa_rtpoll_run(u->rtpoll)) < 0)
+            goto fail;
+
+        /* ret is zero only when the module is being unloaded, i.e. we're doing
+         * clean shutdown. */
+        if (ret == 0)
+            goto finish;            
     }
 fail:
     pa_asyncmsgq_post(u->thread_mq->outq, PA_MSGOBJECT(u->module->core), PA_CORE_MESSAGE_UNLOAD_MODULE, u->module, 0, NULL, NULL);
@@ -500,27 +500,13 @@ int pa__init(pa_module *m) {
     u->module = m;
     m->userdata = u;
     u->remote_server = pa_xstrdup(remote_server);
-    u->thread_mainloop = pa_mainloop_new();
-    if (u->thread_mainloop == NULL) {
-        pa_log("Failed to create mainloop");
-        goto fail;
-    }
-    u->thread_mainloop_api = pa_mainloop_get_api(u->thread_mainloop);
+    u->rtpoll = pa_rtpoll_new();
+    u->thread_mq = pa_xnew0(pa_thread_mq, 1);
+    pa_thread_mq_init(u->thread_mq, m->core->mainloop, u->rtpoll);
+    u->thread_mainloop_api = pa_rtpoll_get_mainloop_api(u->rtpoll);
+
     u->cookie_file = pa_xstrdup(pa_modargs_get_value(ma, "cookie", NULL));
     u->remote_source_name = pa_xstrdup(pa_modargs_get_value(ma, "source", NULL));
-
-    u->thread_mq = pa_xnew0(pa_thread_mq, 1);
-
-    if (pa_thread_mq_init_thread_mainloop(u->thread_mq, m->core->mainloop, u->thread_mainloop_api) < 0) {
-        pa_log("pa_thread_mq_init_thread_mainloop() failed.");
-        goto fail;
-    }
-
-    /* The rtpoll created here is never run. It is only necessary to avoid crashes
-     * when module-tunnel-source-new is used together with module-loopback.
-     * module-loopback bases the asyncmsq on the rtpoll provided by the source and
-     * only works because it calls pa_asyncmsq_process_one(). */
-    u->rtpoll = pa_rtpoll_new();
 
     /* Create source */
     pa_source_new_data_init(&source_data);
@@ -605,9 +591,9 @@ void pa__done(pa_module *m) {
         pa_xfree(u->thread_mq);
     }
 
-    if (u->thread_mainloop)
-        pa_mainloop_free(u->thread_mainloop);
-
+    if (u->rtpoll)
+        pa_rtpoll_free(u->rtpoll);
+    
     if (u->cookie_file)
         pa_xfree(u->cookie_file);
 
@@ -619,9 +605,6 @@ void pa__done(pa_module *m) {
 
     if (u->source)
         pa_source_unref(u->source);
-
-    if (u->rtpoll)
-        pa_rtpoll_free(u->rtpoll);
 
     pa_xfree(u);
 }

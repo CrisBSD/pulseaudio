@@ -1198,6 +1198,21 @@ AS_IF([test "x$with_speex" = "xyes" && test "x$HAVE_SPEEX" = "x0"],
 AM_CONDITIONAL([HAVE_SPEEX], [test "x$HAVE_SPEEX" = "x1"])
 AS_IF([test "x$HAVE_SPEEX" = "x1"], AC_DEFINE([HAVE_SPEEX], 1, [Have speex]))
 
+#### opus (optional) ####
+
+AC_ARG_WITH([opus],
+    AS_HELP_STRING([--without-opus],[Omit opus (transcoding, tunnel)]))
+
+AS_IF([test "x$with_opus" != "xno"],
+    [PKG_CHECK_MODULES(LIBOPUS, [ opus >= 1.1 ], HAVE_OPUS=1, HAVE_OPUS=0)],
+    HAVE_OPUS=0)
+
+AS_IF([test "x$with_opus" = "xyes" && test "x$HAVE_OPUS" = "x0"],
+    [AC_MSG_ERROR([*** opus support not found])])
+
+AM_CONDITIONAL([HAVE_OPUS], [test "x$HAVE_OPUS" = "x1"])
+AS_IF([test "x$HAVE_OPUS" = "x1"], AC_DEFINE([HAVE_OPUS], 1, [Have opus]))
+
 #### soxr (optional) ####
 
 AC_ARG_WITH([soxr],
@@ -1659,6 +1674,7 @@ AS_IF([test "x$HAVE_GCOV" = "x1"], ENABLE_GCOV=yes, ENABLE_GCOV=no)
 AS_IF([test "x$HAVE_LIBCHECK" = "x1"], ENABLE_TESTS=yes, ENABLE_TESTS=no)
 AS_IF([test "x$enable_legacy_database_entry_format" != "xno"], ENABLE_LEGACY_DATABASE_ENTRY_FORMAT=yes, ENABLE_LEGACY_DATABASE_ENTRY_FORMAT=no)
 AS_IF([test "x$enable_stream_restore_clear_old_devices" == "xyes"], ENABLE_STREAM_RESTORE_CLEAR_OLD_DEVICES=yes, ENABLE_STREAM_RESTORE_CLEAR_OLD_DEVICES=no)
+AS_IF([test "x$HAVE_OPUS" = "x1"], ENABLE_OPUS=yes, ENABLE_OPUS=no)
 
 echo "
  ---{ $PACKAGE_NAME $VERSION }---
@@ -1718,6 +1734,7 @@ echo "
     Enable GStreamer-based RTP:    ${ENABLE_GSTREAMER}
     Enable gcov coverage:          ${ENABLE_GCOV}
     Enable unit tests:             ${ENABLE_TESTS}
+    Enable opus (transcoding):     ${ENABLE_OPUS}
     Database
       tdb:                         ${ENABLE_TDB}
       gdbm:                        ${ENABLE_GDBM}
