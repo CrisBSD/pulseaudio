@@ -223,7 +223,7 @@ static void thread_func(void *userdata) {
 
     for (;;) {
         int ret;
-        
+
         if (u->new_data)
             read_new_samples(u);
 
@@ -233,7 +233,7 @@ static void thread_func(void *userdata) {
         /* ret is zero only when the module is being unloaded, i.e. we're doing
          * clean shutdown. */
         if (ret == 0)
-            goto finish;            
+            goto finish;
     }
 fail:
     pa_asyncmsgq_post(u->thread_mq->outq, PA_MSGOBJECT(u->module->core), PA_CORE_MESSAGE_UNLOAD_MODULE, u->module, 0, NULL, NULL);
@@ -593,7 +593,7 @@ void pa__done(pa_module *m) {
 
     if (u->rtpoll)
         pa_rtpoll_free(u->rtpoll);
-    
+
     if (u->cookie_file)
         pa_xfree(u->cookie_file);
 

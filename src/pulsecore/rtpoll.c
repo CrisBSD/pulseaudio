@@ -794,7 +794,7 @@ int pa_rtpoll_run(pa_rtpoll *p) {
         r = ppoll(p->pollfd, p->n_pollfd_used, (p->quit || timer_enabled) ? &ts : NULL, NULL);
     }
 #else
-    r = pa_poll(p->pollfd, p->n_pollfd_used, (p->quit || timer_enabled) ? (int) ((timeout.tv_sec*1000)
+    r = pa_poll(p->pollfd, p->n_pollfd_used, (p->quit || timer_enabled) ? (int) ((timeout.tv_sec*1000) +
  (timeout.tv_usec / 1000)) : -1);
 #endif
 

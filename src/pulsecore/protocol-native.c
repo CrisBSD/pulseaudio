@@ -1101,7 +1101,7 @@ static playback_stream* playback_stream_new(
 
     s->transcode.encoding = transcode_encoding;
     if(transcode_encoding != -1) {
-         pa_transcode_init(&s->transcode, transcode_encoding, PA_TRANSCODE_DECODER, transcode_format_info, NULL);
+         pa_transcode_init(&s->transcode, transcode_encoding, PA_TRANSCODE_DECODER, transcode_format_info, NULL, NULL, data.proplist);
          pa_format_info_free(transcode_format_info);
      }
 
