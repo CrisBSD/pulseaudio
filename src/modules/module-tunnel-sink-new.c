@@ -73,6 +73,7 @@ static void stream_set_buffer_attr_cb(pa_stream *stream, int success, void *user
 static void context_state_cb(pa_context *c, void *userdata);
 static void sink_update_requested_latency_cb(pa_sink *s);
 
+
 struct userdata {
     pa_module *module;
     pa_sink *sink;
@@ -93,6 +94,7 @@ struct userdata {
     char *remote_sink_name;
 
     pa_transcode transcode;
+    pa_hook_slot *sink_changed_slot;
 };
 
 static const char* const valid_modargs[] = {
@@ -111,6 +113,8 @@ static const char* const valid_modargs[] = {
    /* "reconnect", reconnect if server comes back again - unimplemented */
     NULL,
 };
+
+static pa_hook_result_t sink_changed_cb(pa_core *c, pa_object *o, struct userdata *u);
 
 static void cork_stream(struct userdata *u, bool cork) {
     pa_operation *operation;
@@ -154,6 +158,10 @@ static pa_proplist* tunnel_new_proplist(struct userdata *u) {
 static void thread_func(void *userdata) {
     struct userdata *u = userdata;
     pa_proplist *proplist;
+    unsigned int frame_size;
+
+
+
     pa_assert(u);
 
     pa_log_debug("Thread starting up");
@@ -184,6 +192,13 @@ static void thread_func(void *userdata) {
         goto fail;
     }
 
+    // TODO: fix this, probably move to the initialization code
+    u->transcode.proplist = u->sink->proplist;
+
+    // The parameter is limited internally and can't be negative
+    if ( u->transcode.encoding != -1 )
+        frame_size = (unsigned int)pa_transcode_get_param(&u->transcode, PA_PROP_COMPRESSION_FRAME_SIZE);
+
     for (;;) {
         int ret;
 
@@ -204,10 +219,10 @@ static void thread_func(void *userdata) {
                          size_t nbBytes;
                          unsigned char *cbits;
 
-                         pa_sink_render_full(u->sink, u->transcode.frame_size*u->transcode.channels*u->transcode.sample_size, &memchunk);
+                         pa_sink_render_full(u->sink, frame_size*u->transcode.channels*u->transcode.sample_size, &memchunk);
 
                          pa_assert(memchunk.length > 0);
-                         pa_assert(memchunk.length >=  u->transcode.frame_size*u->transcode.channels);
+                         pa_assert(memchunk.length >=  frame_size*u->transcode.channels);
 
 
                          pa_log_debug("received memchunk length: %zu bytes", memchunk.length );
@@ -223,7 +238,7 @@ static void thread_func(void *userdata) {
                                                nbBytes,
                                                NULL,     /**< A cleanup routine for the data or NULL to request an internal copy */
                                                0,        /** offset */
-                                              PA_SEEK_RELATIVE, u->transcode.frame_size*u->transcode.channels*u->transcode.sample_size);
+                                              PA_SEEK_RELATIVE, frame_size*u->transcode.channels*u->transcode.sample_size);
                          pa_memblock_release(memchunk.memblock);
                          pa_memblock_unref(memchunk.memblock);
                          if(nbBytes > 0) free(cbits);
@@ -577,15 +592,16 @@ int pa__init(pa_module *m) {
         pa_log("compression activated");
         memset(&u->transcode, 0, sizeof(pa_transcode));
 
-        if(strcmp(compression, "opus") == 0 && pa_transcode_supported(PA_ENCODING_OPUS)){
+        if(pa_transcode_supported_byname(compression)){
 
-             compression = pa_modargs_get_value(ma, "compression-frame_size", NULL);
-             if(compression) u->transcode.frame_size = atoi(compression);
-             compression = pa_modargs_get_value(ma, "compression-bitrate", NULL);
-             if(compression) u->transcode.bitrate = atoi(compression);
+		pa_encoding_t encoding = pa_transcode_encoding_byname(compression);
 
-             pa_transcode_init(&u->transcode, PA_ENCODING_OPUS, PA_TRANSCODE_ENCODER, NULL, &ss);
+//             pa_proplist_sets(sink_data.proplist, "compression.algorithm", "opus");
+//             pa_transcode_copy_arguments(&u->transcode, ma, sink_data.proplist);
 
+
+             pa_transcode_init(&u->transcode, encoding, PA_TRANSCODE_ENCODER, NULL, &ss, ma, sink_data.proplist);
+	     u->sink_changed_slot = pa_hook_connect(&m->core->hooks[PA_CORE_HOOK_SINK_PROPLIST_CHANGED], PA_HOOK_LATE, (pa_hook_cb_t)sink_changed_cb, u);
          }
     }
     else u->transcode.encoding = -1;
@@ -685,4 +701,20 @@ void pa__done(pa_module *m) {
         pa_transcode_free(&u->transcode);
 
     pa_xfree(u);
+}
+
+/* Runs in PA mainloop context */
+static pa_hook_result_t sink_changed_cb(pa_core *c, pa_object *o, struct userdata *u) {
+    pa_assert(c);
+    pa_object_assert_ref(o);
+
+    // TODO: a lock is probably needed here
+    pa_mutex_lock(u->transcode.codec_mutex);
+
+    pa_transcode_verify_proplist(&u->transcode);
+    pa_transcode_update_encoder_options(&u->transcode);
+
+    pa_mutex_unlock(u->transcode.codec_mutex);
+
+    return PA_HOOK_OK;
 }
