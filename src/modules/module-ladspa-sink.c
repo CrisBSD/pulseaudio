@@ -1048,8 +1048,10 @@ int pa__init(pa_module*m) {
     u->output = NULL;
     u->ss = ss;
 
+#define QUOTE_MACRO(x) #x
     if (!(e = getenv("LADSPA_PATH")))
-        e = LADSPA_PATH;
+        e = QUOTE_MACRO(LADSPA_PATH);
+#undef QUOTE_MACRO
 
     /* FIXME: This is not exactly thread safe */
     t = pa_xstrdup(lt_dlgetsearchpath());
