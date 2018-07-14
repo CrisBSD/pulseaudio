@@ -602,9 +602,8 @@ msgstr "Sujungimo stoties įvadinė linija"
 msgid "Line In"
 msgstr "Įvadinė linija"
 
-#: ../src/modules/alsa/alsa-mixer.c:2383 ../src/modules/alsa/alsa-mixer.c:2461
-#: ../src/modules/bluetooth/module-bluez4-device.c:2104
-#: ../src/modules/bluetooth/module-bluez5-device.c:1783
+#: src/modules/alsa/alsa-mixer.c:2448 src/modules/alsa/alsa-mixer.c:2526
+#: src/modules/bluetooth/module-bluez5-device.c:1904
 msgid "Microphone"
 msgstr "Mikrofonas"
 
@@ -664,9 +663,8 @@ msgstr "Žemų tonų pastiprinimas"
 msgid "No Bass Boost"
 msgstr "Be žemų tonų pastiprinimo"
 
-#: ../src/modules/alsa/alsa-mixer.c:2398
-#: ../src/modules/bluetooth/module-bluez4-device.c:2109
-#: ../src/modules/bluetooth/module-bluez5-device.c:1790
+#: src/modules/alsa/alsa-mixer.c:2463
+#: src/modules/bluetooth/module-bluez5-device.c:1911
 msgid "Speaker"
 msgstr "Garsiakalbis"
 
@@ -861,10 +859,8 @@ msgstr "Daugiakanalė dvipusė"
 msgid "Stereo Duplex"
 msgstr "Dvipusė stereo"
 
-#: ../src/modules/alsa/alsa-mixer.c:4158
-#: ../src/modules/alsa/module-alsa-card.c:186
-#: ../src/modules/bluetooth/module-bluez4-device.c:2324
-#: ../src/modules/bluetooth/module-bluez5-device.c:2038
+#: src/modules/alsa/alsa-mixer.c:4229 src/modules/alsa/module-alsa-card.c:187
+#: src/modules/bluetooth/module-bluez5-device.c:2159
 msgid "Off"
 msgstr "Išjungta"
 
@@ -998,73 +994,48 @@ msgstr ""
 "Greičiausiai, tai yra klaida ALSA \"'%s\" tvarkyklėje. Prašome apie šią "
 "klaidą pranešti ALSA kūrėjams."
 
-#: ../src/modules/bluetooth/module-bluez4-device.c:2094
-#: ../src/modules/bluetooth/module-bluez5-device.c:1773
-msgid "Headset"
-msgstr "Ausinės su mikrofonu"
-
-#: ../src/modules/bluetooth/module-bluez4-device.c:2099
-#: ../src/modules/bluetooth/module-bluez5-device.c:1778
-msgid "Handsfree"
-msgstr "Laisvų rankų įranga"
-
-#: ../src/modules/bluetooth/module-bluez4-device.c:2114
-#: ../src/modules/bluetooth/module-bluez5-device.c:1796
-msgid "Headphone"
-msgstr "Ausinė"
-
-#: ../src/modules/bluetooth/module-bluez4-device.c:2119
-#: ../src/modules/bluetooth/module-bluez5-device.c:1801
-msgid "Portable"
-msgstr "Portatyvi sistema"
-
-#: ../src/modules/bluetooth/module-bluez4-device.c:2124
-#: ../src/modules/bluetooth/module-bluez5-device.c:1806
-msgid "Car"
-msgstr "Automobilis"
-
-#: ../src/modules/bluetooth/module-bluez4-device.c:2129
-#: ../src/modules/bluetooth/module-bluez5-device.c:1811
-msgid "HiFi"
-msgstr "HiFi"
-
-#: ../src/modules/bluetooth/module-bluez4-device.c:2134
-#: ../src/modules/bluetooth/module-bluez5-device.c:1816
-msgid "Phone"
-msgstr "Telefonas"
-
-#: ../src/modules/bluetooth/module-bluez4-device.c:2142
-#: ../src/modules/bluetooth/module-bluez5-device.c:1768
-#: ../src/modules/bluetooth/module-bluez5-device.c:1784
-#: ../src/modules/bluetooth/module-bluez5-device.c:1822
-msgid "Bluetooth Output"
-msgstr "Bluetooth išvestis"
-
-#: ../src/modules/bluetooth/module-bluez4-device.c:2145
-#: ../src/modules/bluetooth/module-bluez5-device.c:1767
-#: ../src/modules/bluetooth/module-bluez5-device.c:1789
-#: ../src/modules/bluetooth/module-bluez5-device.c:1795
-#: ../src/modules/bluetooth/module-bluez5-device.c:1821
+#: src/modules/bluetooth/module-bluez5-device.c:1888
+#: src/modules/bluetooth/module-bluez5-device.c:1910
+#: src/modules/bluetooth/module-bluez5-device.c:1916
+#: src/modules/bluetooth/module-bluez5-device.c:1942
 msgid "Bluetooth Input"
 msgstr "Bluetooth įvestis"
 
-#: ../src/modules/bluetooth/module-bluez4-device.c:2186
-msgid "High Fidelity Playback (A2DP)"
-msgstr "Aukštos kokybės atkūrimas (A2DP)"
+#: src/modules/bluetooth/module-bluez5-device.c:1889
+#: src/modules/bluetooth/module-bluez5-device.c:1905
+#: src/modules/bluetooth/module-bluez5-device.c:1943
+msgid "Bluetooth Output"
+msgstr "Bluetooth išvestis"
 
-#: ../src/modules/bluetooth/module-bluez4-device.c:2198
-msgid "High Fidelity Capture (A2DP)"
-msgstr "Aukštos kokybės paėmimas (A2DP)"
+#: src/modules/bluetooth/module-bluez5-device.c:1894
+msgid "Headset"
+msgstr "Ausinės su mikrofonu"
 
-#: ../src/modules/bluetooth/module-bluez4-device.c:2210
-msgid "Telephony Duplex (HSP/HFP)"
-msgstr "Telefoninė dvipusė (HSP/HFP)"
+#: src/modules/bluetooth/module-bluez5-device.c:1899
+msgid "Handsfree"
+msgstr "Laisvų rankų įranga"
 
-#: ../src/modules/bluetooth/module-bluez4-device.c:2223
-msgid "Handsfree Gateway"
-msgstr "Laisvų rankų įrangos tinklų sietuvas"
+#: src/modules/bluetooth/module-bluez5-device.c:1917
+msgid "Headphone"
+msgstr "Ausinė"
 
-#: ../src/modules/bluetooth/module-bluez5-device.c:1863
+#: src/modules/bluetooth/module-bluez5-device.c:1922
+msgid "Portable"
+msgstr "Portatyvi sistema"
+
+#: src/modules/bluetooth/module-bluez5-device.c:1927
+msgid "Car"
+msgstr "Automobilis"
+
+#: src/modules/bluetooth/module-bluez5-device.c:1932
+msgid "HiFi"
+msgstr "HiFi"
+
+#: src/modules/bluetooth/module-bluez5-device.c:1937
+msgid "Phone"
+msgstr "Telefonas"
+
+#: src/modules/bluetooth/module-bluez5-device.c:1984
 msgid "High Fidelity Playback (A2DP Sink)"
 msgstr "Aukštos kokybės atkūrimas (A2DP rinktuvas)"
 
