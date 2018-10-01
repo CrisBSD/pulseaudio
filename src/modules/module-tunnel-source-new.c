@@ -508,12 +508,6 @@ int pa__init(pa_module *m) {
     u->cookie_file = pa_xstrdup(pa_modargs_get_value(ma, "cookie", NULL));
     u->remote_source_name = pa_xstrdup(pa_modargs_get_value(ma, "source", NULL));
 
-    /* The rtpoll created here is never run. It is only necessary to avoid crashes
-     * when module-tunnel-source-new is used together with module-loopback.
-     * module-loopback bases the asyncmsq on the rtpoll provided by the source and
-     * only works because it calls pa_asyncmsq_process_one(). */
-    u->rtpoll = pa_rtpoll_new();
-
     /* Create source */
     pa_source_new_data_init(&source_data);
     source_data.driver = __FILE__;
@@ -611,9 +605,6 @@ void pa__done(pa_module *m) {
 
     if (u->source)
         pa_source_unref(u->source);
-
-    if (u->rtpoll)
-        pa_rtpoll_free(u->rtpoll);
 
     pa_xfree(u);
 }

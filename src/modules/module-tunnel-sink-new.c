@@ -576,15 +576,6 @@ int pa__init(pa_module *m) {
     u->cookie_file = pa_xstrdup(pa_modargs_get_value(ma, "cookie", NULL));
     u->remote_sink_name = pa_xstrdup(pa_modargs_get_value(ma, "sink", NULL));
 
-    /* The rtpoll created here is never run. It is only necessary to avoid crashes
-     * when module-tunnel-sink-new is used together with module-loopback or
-     * module-combine-sink. Both modules base their asyncmsq on the rtpoll provided
-     * by the sink. module-loopback and combine-sink only work because they call
-     * pa_asyncmsq_process_one() themselves. module_rtp_recv also uses the rtpoll,
-     * but never calls pa_asyncmsq_process_one(), so it will not work in combination
-     * with module-tunnel-sink-new. */
-    u->rtpoll = pa_rtpoll_new();
-
     /* Create sink */
     pa_sink_new_data_init(&sink_data);
     sink_data.driver = __FILE__;
